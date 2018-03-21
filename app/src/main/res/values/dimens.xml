@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="horizontal_margin_activity">16dp</dimen>
+    <dimen name="vertical_margin_activity">16dp</dimen>
+    <dimen name="gridview_column_width">100dp</dimen>
+    <dimen name="gridview_vertical_spacing">10dp</dimen>
+    <dimen name="gridview_horizontal_spacing">10dp</dimen>
+    <dimen name="poster_margin">5dp</dimen>
+    <dimen name="carview_corner_radius">5dp</dimen>
+    <dimen name="cardview_elevation">5dp</dimen>
+</resources>

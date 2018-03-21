@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="menu_sort_by_popularity">Sort by popularity</string>
+    <string name="menu_sort_by_highest_rate">Sort by highest rate</string>
+    <string name="no_movie_selected">No movie has been selected</string>
+    <string name="error_loading_movies">Error loading movies</string>
+    <string name="no_network">No network connection</string>
+</resources>
