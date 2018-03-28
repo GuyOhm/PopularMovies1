@@ -51,6 +51,8 @@ class MoviesAdapter extends ArrayAdapter<Movie> {
             Picasso
                     .with(getContext())
                     .load(String.valueOf(NetworkUtils.buildPosterUrl(movie.getPoster())))
+                    .placeholder(R.mipmap.ic_launcher)
+                    .error(R.mipmap.ic_launcher)
                     .into(poster);
         }
 

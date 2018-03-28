@@ -4,10 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,8 +23,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -62,13 +60,20 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         assert cm != null;
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
+            showLoadingIndicator();
             // Execute AsyncTask to fetch data from TMDB server
-            new moviesDbQueryTask().execute(NetworkUtils.buildMovieUrl());
+            new FetchMovieDataTask(new FetchMovieDataTaskCompleteListener())
+                    .execute(NetworkUtils.buildPopularUrl());
         } else {
             showNetworkError();
         }
     }
 
+    /**
+     * Callback to handle selected movie and display its details
+     *
+     * @param movie object
+     */
     @Override
     public void onMovieSelected(Movie movie) {
         Intent movieIntent = new Intent(MainActivity.this, DetailActivity.class);
@@ -77,36 +82,16 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     }
 
     /**
-     * AsyncTask to fetch JSON data from TMDB server
+     * Create an interface to be used as a callback from AsyncTask
      */
-    public class moviesDbQueryTask extends AsyncTask<URL, Void, String>{
+    public class FetchMovieDataTaskCompleteListener implements AsyncTaskCompleteListener<String> {
 
         @Override
-        protected void onPreExecute() {
-            showLoadingIndicator();
-        }
-
-        @Override
-        protected String doInBackground(URL... urls) {
-            // Get the request url
-            URL url = urls[0];
-            // Declare String variable for response
-            String JSONString = null;
-            try {
-                JSONString = NetworkUtils.getResponseFromHttpUrl(url);
-            } catch (IOException e) {
-                e.printStackTrace();
-                showErrorMessage();
-            }
-            return JSONString;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            if (s != null && !TextUtils.isEmpty(s)) {
+        public void onTaskComplete(String result) {
+            if (result != null && !TextUtils.isEmpty(result)) {
                 try {
                     // Convert JSON data to movie objects
-                    convertJsonToObject(s);
+                    convertJsonToObject(result);
                     showGridview();
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -115,6 +100,12 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         }
     }
 
+    /**
+     * Convert the response from TMDB server to Movie objects and add them to an ArrayList
+     *
+     * @param s String which is the response from TMDB server
+     * @throws JSONException
+     */
     private void convertJsonToObject(String s) throws JSONException {
         JSONObject jsonObject = new JSONObject(s);
         JSONArray results = jsonObject.optJSONArray("results");
@@ -147,13 +138,21 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                 // Clear current list of movies
                 mMovies.clear();
                 // Execute a new task to fetch data from the server
-                new moviesDbQueryTask().execute(NetworkUtils.buildPopularUrl());
+                Log.d("MainActicity", NetworkUtils.buildPopularUrl().toString());
+                // new moviesDbQueryTask().execute(NetworkUtils.buildPopularUrl());
+                showLoadingIndicator();
+                new FetchMovieDataTask(new FetchMovieDataTaskCompleteListener())
+                        .execute(NetworkUtils.buildPopularUrl());
                 return true;
             case R.id.action_sort_by_highest_rate:
                 // Clear current list of movies
                 mMovies.clear();
                 // Execute a new task to fetch data from the server
-                new moviesDbQueryTask().execute(NetworkUtils.buildHighestRatedUrl());
+                Log.d("MainActicity", NetworkUtils.buildHighestRatedUrl().toString());
+                // new moviesDbQueryTask().execute(NetworkUtils.buildHighestRatedUrl());
+                showLoadingIndicator();
+                new FetchMovieDataTask(new FetchMovieDataTaskCompleteListener())
+                        .execute(NetworkUtils.buildHighestRatedUrl());
                 return true;
         }
 
@@ -172,14 +171,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         mLoadingIndicator.setVisibility(View.INVISIBLE);
         mNoNetworkTextView.setVisibility(View.INVISIBLE);
         mErrorTextView.setVisibility(View.INVISIBLE);
-    }
-
-    private void showErrorMessage() {
-        mErrorTextView.setVisibility(View.VISIBLE);
-        gridView.setVisibility(View.INVISIBLE);
-        mLoadingIndicator.setVisibility(View.INVISIBLE);
-        mNoNetworkTextView.setVisibility(View.INVISIBLE);
-
     }
 
     private void showNetworkError() {
