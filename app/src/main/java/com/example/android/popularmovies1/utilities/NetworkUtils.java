@@ -3,6 +3,8 @@ package com.example.android.popularmovies1.utilities;
 import android.net.Uri;
 import android.util.Log;
 
+import com.example.android.popularmovies1.BuildConfig;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -24,7 +26,7 @@ public class NetworkUtils {
     private static final String IMAGE_SIZE_PATH = "w185";
 
     // Please enter your own TheMovieDB API key
-    private static final String API_KEY = "";
+    private static final String API_KEY = BuildConfig.API_KEY;
 
     // Queries name
     private static final String API_KEY_QUERY = "api_key";
